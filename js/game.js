@@ -3,51 +3,28 @@ var GAME_HEIGHT = 600;
 
 var renderer = new PIXI.autoDetectRenderer(GAME_WIDTH, GAME_HEIGHT);
 document.body.appendChild(renderer.view);
-
-//var bump = new Bump();
 var stage = new PIXI.Container();
-let texture = PIXI.Texture.from("assets/space.png");
-
-let menuBackground = new PIXI.Sprite(texture);
-
-let spaceship = new PIXI.Sprite(PIXI.Texture.from("assets/spaceship_blue.png"));
-
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
-loadMenu();
+let texture = PIXI.Texture.from("assets/space.png");
 
+// player sprite
+let spaceship = new PIXI.Sprite(PIXI.Texture.from("assets/spaceship_blue.png"));
+
+loadMenu();
 
 ///////////////////////////////////////////////////////////////
 ////////////////////// SCREEN NAVIGATION //////////////////////
 ///////////////////////////////////////////////////////////////
 
-var audio;
-var sound;
-//PIXI.sound.add('audio', 'audio.wav');
-//PIXI.sound.play('audio');
-/*
-PIXI.sound.Sound.from
-(
-    {
-        url: 'audio.mp3',
-        autoPlay: true,
-        loop: true
-    }
-
-);
-*/
 /////////////// MENU SCREEN ///////////////
 function loadMenu() {
+
+    // Load Menu Screen
     let menu = new PIXI.Sprite(PIXI.Texture.from("assets/space_menu.png"));
     menu.width = renderer.screen.width;
     menu.height = renderer.screen.height;
     stage.addChild(menu);
-
-    /*
-    menuBackground.width = renderer.screen.width;
-    menuBackground.height = renderer.screen.height;
-    stage.addChild(menuBackground);
-*/
 
     //BUTTON - play
     var playBtn = new PIXI.Sprite(PIXI.Texture.from("assets/button_play_space.png"));
@@ -67,47 +44,23 @@ function loadMenu() {
     creditsBtn.buttonMode = true;
     creditsBtn.on('pointerdown', loadCredits);
     stage.addChild(creditsBtn);
-
-    //SOUND
-    //PIXI.load.add("audio.wav");
-    //audio = PIXI.audioManager.getAudio("audio.mp3");
-    //audio.play;
-    //audio  = PIXI.sound.Sound.from('audio.mp3');
-    //audio.volume = 0.33;
-    //audio.play( { loop: true } );
-    //sound = new PIXI.audio.Audio("audio.mp3");
-    //sound = new PIXI.sound.from('audio.mp3');
-    //sound.loop = true;
-    //sound.play();
 }
 
 /////////////// GAME PLAY ///////////////
 function loadGame() {
 
+    // Load Game Screen
     let tilingSprite = new PIXI.extras.TilingSprite(texture, renderer.width, renderer.height);
     stage.addChild(tilingSprite);
-
     stage.scale.x = 3;
     stage.scale.y = 3;
-
     stage.addChild(spaceship);
 
-
-
-    //BUTTON - quit
-    /* Delete?
-    var quitBtn = new PIXI.Sprite(PIXI.Texture.from("assets/button_quit_space.png"));
-    quitBtn.position.x = 500;
-    quitBtn.position.y = 410;
-    quitBtn.interactive = true;
-    quitBtn.buttonMode = true;
-    quitBtn.on('pointerdown', loadMenu);
-    stage.addChild(quitBtn);
-     */
-
+    // add planets and stars randomly
     scatterStars();
     scatterPlanets();
 
+    // add spaceship to middle
     spaceship.position.x = (renderer.width/2);
     spaceship.position.y = (renderer.height/2);
 
@@ -117,11 +70,14 @@ function loadGame() {
 
 /////////////// CREDITS SCREEN ///////////////
 function loadCredits() {
+
+    // Load Credits Screen
     let credits = new PIXI.Sprite(PIXI.Texture.from("assets/planet_background.png"));
     credits.width = renderer.screen.width;
     credits.height = renderer.screen.height;
     stage.addChild(credits);
 
+    //BUTTON - menu
     var menuBtn = new PIXI.Sprite(PIXI.Texture.from("assets/button_home_space.png"));
     menuBtn.position.x = 720;
     menuBtn.position.y = 540;
@@ -183,16 +139,9 @@ window.addEventListener("keydown", function (e) {
 animate();
 
 function animate() {
-    //tilingSprite.tilePosition.x += 1;
-    //tilingSprite.tilePosition.y += 1;
-
-    bump.hit(spaceship, starsSprites, false, true, true,
-        function (collision, platform) {
-            stage.removeChild(platform);
-        });
-
-    spaceship.speed = 3;
+    spaceship.speed = 20;
     requestAnimationFrame(animate);
+
     // render the root container
     renderer.render(stage);
 }
@@ -203,9 +152,6 @@ function animate() {
 function update_camera() {
     stage.x = -spaceship.x * 3 + 800/2 - spaceship.width/2*3;
     stage.y = -spaceship.y * 3 + 600/2 + spaceship.height/2*3;
-    // delete?
-    //stage.x = -Math.max(0, Math.min(renderer.worldWidth*GAME_SCALE - GAME_WIDTH, -stage.x));
-    //stage.y = -Math.max(0, Math.min(world.worldHeight*GAME_SCALE - GAME_HEIGHT, -stage.y));
 }
 
 var stars = [
@@ -224,9 +170,6 @@ function scatterStars() {
         var star = new PIXI.Sprite(PIXI.Texture.from(stars[i]));
 
         // "scatter" stars by randomly generating x,y coordinates
-        // delete?
-        //var xValue = Math.floor(Math.random() * 750) + 1;
-        //var yValue = Math.floor(Math.random() * 550) + 1;
         var xValue = Math.floor(Math.random() * 1000) + 1;
         var yValue = Math.floor(Math.random() * 1000) + 1;
 
@@ -257,9 +200,6 @@ function scatterPlanets() {
         var planet = new PIXI.Sprite(PIXI.Texture.from(planets[i]));
 
         // "scatter" planets by randomly generating x,y coordinates
-        // delete?
-        //var xValue = Math.floor(Math.random() * 750) + 1;
-        //var yValue = Math.floor(Math.random() * 550) + 1;
         var xValue = Math.floor(Math.random() * 1000) + 1;
         var yValue = Math.floor(Math.random() * 1000) + 1;
 
@@ -273,4 +213,52 @@ function scatterPlanets() {
     }
 }
 
+///////////////////////////////////////////////////////////////
+///////////////////////// NOT WORKING /////////////////////////
+///////////////////////////////////////////////////////////////
 
+//////////////SOUND NOT WORKING//////////////
+/* Try 1
+PIXI.sound.add('audio', 'audio.wav');
+PIXI.sound.play('audio');*/
+
+/* Try 2
+PIXI.sound.Sound.from({url: 'audio.mp3', autoPlay: true, loop: true});*/
+
+/* Try 3
+PIXI.load.add("audio.wav");
+let audio = PIXI.audioManager.getAudio("audio.mp3");
+audio.play; */
+
+/* Try 4
+let audio = PIXI.sound.Sound.from('audio.mp3');
+audio.play({ loop: true }); */
+
+/* Try 5
+sound = new PIXI.audio.Audio("audio.mp3");
+sound = new PIXI.sound.from('audio.mp3');
+sound.loop = true;
+sound.play(); */
+
+
+//////////////COLLISIONS NOT WORKING//////////////
+/*
+var bump = new Bump();
+
+animate();
+function animate() {
+    //tilingSprite.tilePosition.x += 1;
+    //tilingSprite.tilePosition.y += 1;
+    /* COLLISION NOT WORKING EITHER
+        bump.hit(spaceship, starsSprites, false, true, true,
+
+            function (collision, platform) {
+                stage.removeChild(platform);
+            });
+
+    spaceship.speed = 3;
+    requestAnimationFrame(animate);
+    // render the root container
+    renderer.render(stage);
+}
+*/
