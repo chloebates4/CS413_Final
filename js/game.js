@@ -1,15 +1,14 @@
 var GAME_WIDTH = 800;
 var GAME_HEIGHT = 600;
 
+PIXI.sound.add('audio', 'audio.wav');
+
 var renderer = new PIXI.autoDetectRenderer(GAME_WIDTH, GAME_HEIGHT);
 document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 let texture = PIXI.Texture.from("assets/space.png");
-
-// player sprite
-let spaceship = new PIXI.Sprite(PIXI.Texture.from("assets/spaceship_blue.png"));
 
 loadMenu();
 
@@ -44,7 +43,14 @@ function loadMenu() {
     creditsBtn.buttonMode = true;
     creditsBtn.on('pointerdown', loadCredits);
     stage.addChild(creditsBtn);
+
+    PIXI.sound.play('audio', {loop: true});
 }
+
+// player sprite
+let spaceship = new PIXI.Sprite(PIXI.Texture.from("assets/spaceship_blue.png"));
+spaceship.position.x = (renderer.width/2);
+spaceship.position.y = (renderer.height/2);
 
 /////////////// GAME PLAY ///////////////
 function loadGame() {
@@ -54,15 +60,13 @@ function loadGame() {
     stage.addChild(tilingSprite);
     stage.scale.x = 3;
     stage.scale.y = 3;
+
+    // add spaceship to middle
     stage.addChild(spaceship);
 
     // add planets and stars randomly
     scatterStars();
     scatterPlanets();
-
-    // add spaceship to middle
-    spaceship.position.x = (renderer.width/2);
-    spaceship.position.y = (renderer.height/2);
 
     update_camera();
 
@@ -121,29 +125,71 @@ function loadCredits() {
 ///////////////////////////////////////////////////////////////
 /////////////////////////// EVENTS ////////////////////////////
 ///////////////////////////////////////////////////////////////
-window.addEventListener("keydown", function (e) {
 
+function keydownEventHandler(e) {
     if (e.keyCode == 87)
         spaceship.position.y -= 5;
     else if (e.keyCode == 83)
         spaceship.position.y += 5;
     else if (e.keyCode == 65)
-        spaceship.position.x -=10;
+        spaceship.position.x -= 5;
     else if (e.keyCode == 68)
-        spaceship.position.x +=10;
+        spaceship.position.x += 5;
     update_camera();
-    console.log(e.keyCode);
-});
 
+    for (var g in starsSprites) {
+        var curr_star = starsSprites[g];
+
+        if (collision_intersection(spaceship, curr_star)) {
+            stage.removeChild(curr_star);
+        }
+        //There's no collision
+    }
+
+    console.log("--> SPACESHIP: " + spaceship.x + ", " + spaceship.y);
+}
+
+document.addEventListener("keydown", keydownEventHandler);
+
+function animate() {
+
+    requestAnimationFrame(animate);
+    // render the root container
+    renderer.render(stage);
+
+
+/* DOESN'T WORK
+    // Check intersection with gameport boundary:
+    if (stage.x > 800) {
+        spaceship.vx = -1 * Math.abs(spaceship.vx);
+    }
+    if (stage.x < 0) {
+        spaceship.vx = Math.abs(spaceship.vx);
+    }
+    if (stage.y > 600) {
+        spaceship.vy = -1 * Math.abs(spaceship.vy);
+    }
+    if (stage.y < 0) {
+        spaceship.vy = Math.abs(spaceship.vy);
+    }
+*/
+}
 
 animate();
 
-function animate() {
-    spaceship.speed = 20;
-    requestAnimationFrame(animate);
+function collision_intersection(c0, c1) {
+    // Use the radius to find the center of the circle:
+    var c0xrad = c0.width/2;
+    var c0yrad = c0.height/2;
+    var c0x = c0.position.x + c0xrad;
+    var c0y = c0.position.y + c0yrad;
+    var c1x = c1.position.x ;
+    var c1y = c1.position.y ;
 
-    // render the root container
-    renderer.render(stage);
+    var x = Math.abs(c0x - c1x);
+    var y = Math.abs(c0y - c1y);
+
+    return (x <= 12 && y <= 20);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -159,6 +205,7 @@ var stars = [
     "assets/star_pink.png", "assets/star_pink.png",
     "assets/star_yellow.png", "assets/star_yellow.png"
 ];
+
 var starsSprites = [];
 
 // add stars to game
@@ -170,15 +217,18 @@ function scatterStars() {
         var star = new PIXI.Sprite(PIXI.Texture.from(stars[i]));
 
         // "scatter" stars by randomly generating x,y coordinates
-        var xValue = Math.floor(Math.random() * 1000) + 1;
-        var yValue = Math.floor(Math.random() * 1000) + 1;
+        var xValue = Math.floor(Math.random() * 800);
+        var yValue = Math.floor(Math.random() * 600);
 
         star.width = 20;
         star.height = 20;
         star.position.x = xValue;
         star.position.y = yValue;
         stage.addChild(star);
-        starsSprites[i] = star;
+        starsSprites.push(star);
+        //starsSprites[i] = star;
+
+        console.log("STAR: " + xValue + ", " + yValue);
 
     }
 }
@@ -212,53 +262,3 @@ function scatterPlanets() {
 
     }
 }
-
-///////////////////////////////////////////////////////////////
-///////////////////////// NOT WORKING /////////////////////////
-///////////////////////////////////////////////////////////////
-
-//////////////SOUND NOT WORKING//////////////
-/* Try 1
-PIXI.sound.add('audio', 'audio.wav');
-PIXI.sound.play('audio');*/
-
-/* Try 2
-PIXI.sound.Sound.from({url: 'audio.mp3', autoPlay: true, loop: true});*/
-
-/* Try 3
-PIXI.load.add("audio.wav");
-let audio = PIXI.audioManager.getAudio("audio.mp3");
-audio.play; */
-
-/* Try 4
-let audio = PIXI.sound.Sound.from('audio.mp3');
-audio.play({ loop: true }); */
-
-/* Try 5
-sound = new PIXI.audio.Audio("audio.mp3");
-sound = new PIXI.sound.from('audio.mp3');
-sound.loop = true;
-sound.play(); */
-
-
-//////////////COLLISIONS NOT WORKING//////////////
-/*
-var bump = new Bump();
-
-animate();
-function animate() {
-    //tilingSprite.tilePosition.x += 1;
-    //tilingSprite.tilePosition.y += 1;
-    /* COLLISION NOT WORKING EITHER
-        bump.hit(spaceship, starsSprites, false, true, true,
-
-            function (collision, platform) {
-                stage.removeChild(platform);
-            });
-
-    spaceship.speed = 3;
-    requestAnimationFrame(animate);
-    // render the root container
-    renderer.render(stage);
-}
-*/
