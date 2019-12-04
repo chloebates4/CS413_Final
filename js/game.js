@@ -1,14 +1,19 @@
 var GAME_WIDTH = 800;
 var GAME_HEIGHT = 600;
 
-PIXI.sound.add('audio', 'audio.wav');
-
 var renderer = new PIXI.autoDetectRenderer(GAME_WIDTH, GAME_HEIGHT);
 document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 let texture = PIXI.Texture.from("assets/space.png");
+
+play_sound(); 
+
+function play_sound() {
+    PIXI.sound.add('audio', 'audio.wav');
+    PIXI.sound.play('audio', {loop: true});
+}
 
 loadMenu();
 
@@ -43,8 +48,6 @@ function loadMenu() {
     creditsBtn.buttonMode = true;
     creditsBtn.on('pointerdown', loadCredits);
     stage.addChild(creditsBtn);
-
-    PIXI.sound.play('audio', {loop: true});
 }
 
 // player sprite
